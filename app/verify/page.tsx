@@ -97,7 +97,6 @@ export default function VerifyPage() {
             <h2>Verification</h2>
             <p className="lead">Upload a clear selfie and a government ID. An admin reviews applications manually before members can chat or post.</p>
           </div>
-          <Link className="btn btn-secondary" href="/admin">Admin review demo</Link>
         </div>
         <form className="grid two" onSubmit={handleSubmit}>
           <div className="upload-box">
@@ -131,8 +130,8 @@ export default function VerifyPage() {
             <h2>{status === "pending" ? "Under review" : "Ready for review"}</h2>
             <p className="lead">
               {status === "pending"
-                ? "Your demo application is pending. Open Admin review and approve it to continue."
-                : "Submit the form above to simulate an application waiting for admin approval."}
+                ? "Your application is pending. We will review your selfie and ID before unlocking member features."
+                : "Submit the form above to send your verification for manual review."}
             </p>
           </div>
         </div>

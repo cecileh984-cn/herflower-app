@@ -69,10 +69,9 @@ export function RequireApproved({ children }: { children: React.ReactNode }) {
 }
 
 export function RequireAdmin({ children }: { children: React.ReactNode }) {
-  const { isAdmin, toggleAdmin } = useLocalAppState();
   const { profile, isLoading, error, refresh } = useSupabaseProfile();
 
-  if (profile?.is_admin || isAdmin) {
+  if (profile?.is_admin) {
     return <>{children}</>;
   }
 
@@ -98,7 +97,6 @@ export function RequireAdmin({ children }: { children: React.ReactNode }) {
           <div className="actions" style={{ justifyContent: "center", marginTop: 18 }}>
             <button className="btn btn-secondary" onClick={refresh}>Refresh status</button>
             <Link className="btn btn-secondary" href="/login">Log in</Link>
-            <button className="btn btn-primary" onClick={toggleAdmin}>Enter local admin demo</button>
           </div>
         </div>
       </div>

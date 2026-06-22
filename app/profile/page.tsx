@@ -54,7 +54,7 @@ export default function ProfilePage() {
               .filter(Boolean)
               .map((tag) => <span className="tag" key={tag}>{tag}</span>)}
           </div>
-          {!profileComplete ? <p className="lead" style={{ marginTop: 18 }}>Demo note: this is still the default profile. Fill Profile Setup to personalize it.</p> : null}
+          {!profileComplete ? <p className="lead" style={{ marginTop: 18 }}>Complete your profile so other verified members can understand what kind of connection you are looking for.</p> : null}
         </article>
       </div>
     </AppShell>

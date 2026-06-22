@@ -3,7 +3,6 @@
 import { RequireAdmin } from "../components/AccessGate";
 import { AppShell } from "../components/AppShell";
 import { Avatar } from "../components/Avatar";
-import { useLocalAppState } from "../components/LocalAppState";
 import { FormEvent, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { ProfileRow } from "../lib/profile";
@@ -33,7 +32,6 @@ type ReportRow = {
 };
 
 export default function AdminPage() {
-  const { status, email, reports: demoReports, blockedChat, approveUser, rejectUser, resolveReport } = useLocalAppState();
   const [verifications, setVerifications] = useState<VerificationRow[]>([]);
   const [supabaseReports, setSupabaseReports] = useState<ReportRow[]>([]);
   const [bannedProfiles, setBannedProfiles] = useState<ProfileRow[]>([]);
@@ -42,7 +40,6 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const openReports = supabaseReports.filter((report) => report.status === "open");
-  const openDemoReports = demoReports.filter((report) => report.status === "open");
 
   async function loadAdminData() {
     setIsLoading(true);
@@ -162,7 +159,6 @@ export default function AdminPage() {
       return;
     }
 
-    approveUser();
     setStatusMessage("Verification approved.");
     loadAdminData();
   }
@@ -196,7 +192,6 @@ export default function AdminPage() {
       return;
     }
 
-    rejectUser();
     setStatusMessage("Verification rejected.");
     loadAdminData();
   }
@@ -295,26 +290,13 @@ export default function AdminPage() {
           </div>
           <div className="grid two">
             <div className="grid">
-              <article className="card grid">
-                <div className="card-name">Current demo application</div>
-                <div className="small">Email: {email || "No signup yet"} - Status: {status}</div>
-                <div className="small">Selfie uploaded - ID uploaded - Age claim checked</div>
-                <div className="actions">
-                  <button className="btn btn-primary" onClick={approveUser}>Approve</button>
-                  <button className="btn btn-danger" onClick={rejectUser}>Reject</button>
-                </div>
-              </article>
-            </div>
-            <div className="grid">
               <article className="card">
                 <div className="card-name">Safety queue</div>
                 <p className="lead">{openReports.length} open Supabase reports - {bannedProfiles.length} banned users</p>
-                <p className="small">Chat blocked: {blockedChat ? "yes" : "no"}</p>
               </article>
               <article className="card">
                 <div className="card-name">MVP metrics</div>
                 <p className="lead">Supabase reports: {supabaseReports.length} - Open: {openReports.length}</p>
-                <p className="small">Demo reports: {demoReports.length} - Open: {openDemoReports.length}</p>
                 <button className="btn btn-secondary">View analytics</button>
               </article>
             </div>
@@ -358,7 +340,7 @@ export default function AdminPage() {
             <div className="section-head">
               <div>
                 <h3>Banned users</h3>
-                <p className="lead">Restore test users here if you banned someone by mistake.</p>
+                <p className="lead">Restore members here if an account was banned by mistake.</p>
               </div>
             </div>
             {bannedProfiles.map((profile) => (
@@ -428,23 +410,6 @@ export default function AdminPage() {
               );
             })}
             {supabaseReports.length === 0 ? <p className="lead">No Supabase reports yet. Report a post, comment, user, or message to see it appear here.</p> : null}
-          </div>
-          <div className="grid" style={{ marginTop: 16 }}>
-            <h3>Local demo report queue</h3>
-            {demoReports.map((report) => (
-              <article className="card" key={report.id}>
-                <div className="card-name">{report.targetType} report - {report.status}</div>
-                <p className="lead">{report.reason}</p>
-                <div className="actions">
-                  <span className="tag">Target: {report.targetId}</span>
-                  <span className="tag">{report.createdAt}</span>
-                  {report.status === "open" ? (
-                    <button className="btn btn-secondary" onClick={() => resolveReport(report.id)}>Mark resolved</button>
-                  ) : null}
-                </div>
-              </article>
-            ))}
-            {demoReports.length === 0 ? <p className="lead">No local demo reports.</p> : null}
           </div>
         </div>
       </RequireAdmin>

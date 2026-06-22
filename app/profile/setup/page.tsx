@@ -180,7 +180,7 @@ export default function ProfileSetupPage() {
           <div>
             <h2>Set up your profile</h2>
             <p className="lead">Tell other verified members who you are and what kind of connection you are looking for.</p>
-            {status !== "approved" ? <p className="lead">Demo note: normally this page unlocks after admin approval.</p> : null}
+            {status !== "approved" ? <p className="lead">Your profile can be prepared now, but member features unlock after approval.</p> : null}
           </div>
           <Link className="btn btn-secondary" href="/discover">Enter app</Link>
         </div>
