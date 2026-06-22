@@ -1,0 +1,10 @@
+{
+  "name": "HerFlower",
+  "short_name": "HerFlower",
+  "description": "A women-only global friendship community for verified 18+ women.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffaf7",
+  "theme_color": "#c83f66",
+  "icons": []
+}
