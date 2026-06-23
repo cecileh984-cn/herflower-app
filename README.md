@@ -1,6 +1,6 @@
 # HerFlower MVP
 
-HerFlower is a women-only, verified 18+ global friendship app for finding friends, travel buddies, local activities, language exchange, emotional support, posts, comments, and private chat.
+HerFlower is a women-only, verified 18+ global friendship app for finding friends, travel buddies, local plans, language exchange, emotional support, community posts, comments, and private chat.
 
 This MVP uses Next.js and Supabase. It already includes real auth, manual verification, profile avatars, Discover, Community, Messages, Chat, blocking, reporting, admin review, banning, and restoring users.
 

@@ -11,12 +11,12 @@ const previewUsers = [
 ];
 
 const trustItems = [
-  ["Manual review", "Selfie and ID checks before members can chat or post."],
-  ["Safety controls", "Report posts, comments, messages, and users from the places where issues happen."],
-  ["Admin action", "Moderators can hide unsafe content, resolve reports, ban users, and restore test accounts."]
+  ["Verified community", "Members complete email confirmation and identity review before joining core spaces."],
+  ["Built for safer plans", "Find friends for coffee, museums, language practice, city walks, and travel ideas."],
+  ["In-app safety tools", "Report, block, and moderation flows help keep conversations more respectful."]
 ];
 
-const useCases = ["Friends", "Travel buddies", "Local activities", "Language exchange", "Emotional support", "Community posts"];
+const useCases = ["Friendship", "Travel buddies", "Local plans", "Language exchange", "Emotional support", "Community posts"];
 
 export default function HomePage() {
   const { profile, user, isLoading } = useSupabaseProfile();
@@ -31,7 +31,7 @@ export default function HomePage() {
           <div className="eyebrow">Verified 18+ women only</div>
           <h1>HerFlower</h1>
           <p className="hero-copy">
-            A women-only global friendship app for finding friends, travel companions, local plans, language partners, and kind everyday support.
+            A women-only space to meet verified friends around the world for everyday support, local plans, travel companionship, and language exchange.
           </p>
           <div className="tags hero-tags">
             {useCases.map((item) => <span className="tag" key={item}>{item}</span>)}
@@ -54,7 +54,7 @@ export default function HomePage() {
               ? "Checking your HerFlower status..."
               : user
                 ? `Signed in as ${user.email}. Status: ${profile?.review_status ?? "not loaded"}.`
-                : "New members must complete email confirmation and manual verification before joining the community."}
+                : "New members confirm email and complete verification before joining member-only spaces."}
           </p>
           <div className="landing-grid">
             {trustItems.map(([title, copy]) => (
@@ -89,7 +89,7 @@ export default function HomePage() {
             </div>
             <div className="safety-strip">
               <div className="card-name">Safety first</div>
-              <p className="small">Verified profiles, private chats, report controls, blocks, and admin review.</p>
+              <p className="small">Verified profiles, private chats, reports, blocks, and member-first moderation.</p>
             </div>
           </div>
         </div>
