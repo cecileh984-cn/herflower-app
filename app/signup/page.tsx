@@ -84,7 +84,11 @@ export default function SignUpPage() {
           <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Create a password" minLength={6} required /></label>
           <label className="full">Birthday<input type="date" required /></label>
           <label className="full">Age confirmation<select><option>I confirm I am 18 years or older</option><option>I am not 18 yet</option></select></label>
-          <label className="full">Terms<select><option>I agree to the Terms and Privacy Policy</option></select></label>
+          <label className="full">Terms<select required><option>I agree to the Terms of Service and Privacy Policy</option></select></label>
+          <p className="small full">
+            By continuing, you agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
+            HerFlower uses selfie and ID review to help protect a women-only, 18+ community.
+          </p>
           <div className="actions full">
             <button className="btn btn-primary" type="submit" disabled={isSubmitting}>{isSubmitting ? "Creating account..." : "Continue to verification"}</button>
           </div>
@@ -97,7 +101,8 @@ export default function SignUpPage() {
           </div>
         ) : null}
         <div className="actions" style={{ marginTop: 18 }}>
-          <Link className="btn btn-secondary" href="/verify">Skip to verification preview</Link>
+          <Link className="btn btn-secondary" href="/terms">Terms</Link>
+          <Link className="btn btn-secondary" href="/privacy">Privacy</Link>
         </div>
       </div>
     </AppShell>

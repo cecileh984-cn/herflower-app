@@ -108,6 +108,7 @@ export default function VerifyPage() {
           <div className="upload-box">
             <div className="card-name">ID document</div>
             <div className="small">Used only to confirm age and identity. Not public.</div>
+            <div className="small">Read how verification data is handled in our <Link href="/privacy">Privacy Policy</Link>.</div>
             <input type="file" accept="image/*,.pdf" onChange={(event) => setDocumentFile(event.target.files?.[0] ?? null)} />
             {documentFile ? <div className="small">Selected: {documentFile.name}</div> : null}
           </div>

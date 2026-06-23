@@ -33,6 +33,14 @@ a {
   text-decoration: none;
 }
 
+p a,
+.small a {
+  color: var(--rose-dark);
+  font-weight: 850;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 button,
 input,
 textarea,
@@ -210,6 +218,9 @@ select {
 }
 
 .mini-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: white;
@@ -218,6 +229,25 @@ select {
   font-size: 12px;
   font-weight: 850;
   padding: 7px 10px;
+}
+
+.legal-page {
+  max-width: 860px;
+}
+
+.legal-card {
+  display: grid;
+  gap: 12px;
+  line-height: 1.65;
+}
+
+.legal-card h3 {
+  margin-bottom: 0;
+}
+
+.legal-card p {
+  color: var(--muted);
+  margin-bottom: 4px;
 }
 
 .panel {
