@@ -31,15 +31,27 @@ type ReportRow = {
   reportedProfile: ProfileRow | null;
 };
 
+type DeletionRequestRow = {
+  id: string;
+  user_id: string;
+  reason: string | null;
+  status: "open" | "reviewing" | "resolved" | "dismissed";
+  requested_at: string;
+  resolved_at: string | null;
+  profile: ProfileRow | null;
+};
+
 export default function AdminPage() {
   const [verifications, setVerifications] = useState<VerificationRow[]>([]);
   const [supabaseReports, setSupabaseReports] = useState<ReportRow[]>([]);
+  const [deletionRequests, setDeletionRequests] = useState<DeletionRequestRow[]>([]);
   const [bannedProfiles, setBannedProfiles] = useState<ProfileRow[]>([]);
   const [statusMessage, setStatusMessage] = useState("");
   const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const openReports = supabaseReports.filter((report) => report.status === "open");
+  const openDeletionRequests = deletionRequests.filter((request) => request.status === "open" || request.status === "reviewing");
 
   async function loadAdminData() {
     setIsLoading(true);
@@ -54,6 +66,7 @@ export default function AdminPage() {
       setStatusMessage("Log in with your Supabase admin account first, then refresh this page.");
       setVerifications([]);
       setSupabaseReports([]);
+      setDeletionRequests([]);
       setBannedProfiles([]);
       return;
     }
@@ -101,9 +114,20 @@ export default function AdminPage() {
       return;
     }
 
+    const { data: deletionData, error: deletionError } = await supabase
+      .from("deletion_requests")
+      .select("id,user_id,reason,status,requested_at,resolved_at")
+      .order("requested_at", { ascending: false })
+      .limit(50);
+
+    if (deletionError) {
+      setDeletionRequests([]);
+    }
+
     const profileIds = [
       ...new Set((reportData ?? [])
         .flatMap((report) => [report.reporter_id, report.reported_user_id])
+        .concat((deletionData ?? []).map((request) => request.user_id))
         .filter(Boolean) as string[])
     ];
 
@@ -127,6 +151,11 @@ export default function AdminPage() {
       reporterProfile: profiles?.find((profile) => profile.id === report.reporter_id) ?? null,
       reportedProfile: profiles?.find((profile) => profile.id === report.reported_user_id) ?? null
     })) as ReportRow[]);
+
+    setDeletionRequests((deletionData ?? []).map((request) => ({
+      ...request,
+      profile: profiles?.find((profile) => profile.id === request.user_id) ?? null
+    })) as DeletionRequestRow[]);
   }
 
   useEffect(() => {
@@ -278,6 +307,26 @@ export default function AdminPage() {
     loadAdminData();
   }
 
+  async function updateDeletionRequestStatus(request: DeletionRequestRow, nextStatus: "reviewing" | "resolved" | "dismissed") {
+    setStatusMessage("");
+
+    const { error } = await supabase
+      .from("deletion_requests")
+      .update({
+        status: nextStatus,
+        resolved_at: nextStatus === "resolved" || nextStatus === "dismissed" ? new Date().toISOString() : null
+      })
+      .eq("id", request.id);
+
+    if (error) {
+      setStatusMessage(error.message);
+      return;
+    }
+
+    setStatusMessage(`Deletion request marked ${nextStatus}.`);
+    loadAdminData();
+  }
+
   return (
     <AppShell>
       <RequireAdmin>
@@ -292,7 +341,7 @@ export default function AdminPage() {
             <div className="grid">
               <article className="card">
                 <div className="card-name">Safety queue</div>
-                <p className="lead">{openReports.length} open Supabase reports - {bannedProfiles.length} banned users</p>
+                <p className="lead">{openReports.length} open Supabase reports - {openDeletionRequests.length} deletion requests - {bannedProfiles.length} banned users</p>
               </article>
               <article className="card">
                 <div className="card-name">MVP metrics</div>
@@ -360,6 +409,45 @@ export default function AdminPage() {
               </article>
             ))}
             {!isLoading && bannedProfiles.length === 0 ? <p className="lead">No banned users.</p> : null}
+          </div>
+          <div className="grid" style={{ marginTop: 16 }}>
+            <h3>Account deletion requests</h3>
+            {deletionRequests.map((request) => {
+              const isHandled = request.status === "resolved" || request.status === "dismissed";
+
+              return (
+                <article className="card grid" key={request.id}>
+                  <div className="section-head" style={{ marginBottom: 0 }}>
+                    <div>
+                      <div className="card-name">Deletion request - {request.status}</div>
+                      <p className="lead">{request.reason || "No reason provided."}</p>
+                    </div>
+                    <div className="actions">
+                      {isHandled ? <span className="tag">Handled</span> : null}
+                      <span className="tag">{new Date(request.requested_at).toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="avatar-row">
+                    <Avatar name={request.profile?.display_name} src={request.profile?.avatar_url} />
+                    <div>
+                      <div className="card-name">{request.profile?.display_name ?? "HerFlower member"}</div>
+                      <div className="small">User: {request.user_id}</div>
+                      <div className="small">Status: {request.profile?.review_status ?? "Unknown"}</div>
+                    </div>
+                  </div>
+                  {!isHandled ? (
+                    <div className="actions">
+                      {request.status === "open" ? (
+                        <button className="btn btn-secondary" onClick={() => updateDeletionRequestStatus(request, "reviewing")}>Mark reviewing</button>
+                      ) : null}
+                      <button className="btn btn-secondary" onClick={() => updateDeletionRequestStatus(request, "resolved")}>Mark resolved</button>
+                      <button className="btn btn-secondary" onClick={() => updateDeletionRequestStatus(request, "dismissed")}>Dismiss</button>
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+            {deletionRequests.length === 0 ? <p className="lead">No account deletion requests yet.</p> : null}
           </div>
           <div className="grid" style={{ marginTop: 16 }}>
             <h3>Supabase report queue</h3>

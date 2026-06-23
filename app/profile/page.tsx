@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { FormEvent, useState } from "react";
 import { AppShell } from "../components/AppShell";
 import { Avatar } from "../components/Avatar";
 import { useLocalAppState } from "../components/LocalAppState";
 import { useSupabaseProfile } from "../components/useSupabaseProfile";
+import { supabase } from "../lib/supabase";
 
 export default function ProfilePage() {
   const { profile, status, profileComplete } = useLocalAppState();
-  const { profile: supabaseProfile, isLoading } = useSupabaseProfile();
+  const { profile: supabaseProfile, user, isLoading } = useSupabaseProfile();
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteStatusMessage, setDeleteStatusMessage] = useState("");
+  const [isSubmittingDeletion, setIsSubmittingDeletion] = useState(false);
   const displayName = supabaseProfile?.display_name ?? profile.displayName;
   const city = supabaseProfile?.city ?? profile.city;
   const country = supabaseProfile?.country ?? profile.country;
@@ -55,6 +60,72 @@ export default function ProfilePage() {
               .map((tag) => <span className="tag" key={tag}>{tag}</span>)}
           </div>
           {!profileComplete ? <p className="lead" style={{ marginTop: 18 }}>Complete your profile so other verified members can understand what kind of connection you are looking for.</p> : null}
+        </article>
+        <article className="card grid" style={{ marginTop: 16 }}>
+          <div>
+            <div className="card-name">Account and data deletion</div>
+            <p className="lead">
+              You can request deletion of your account and related data. HerFlower will review the request before taking action so accounts are not removed by mistake.
+            </p>
+          </div>
+          <form className="grid" onSubmit={async (event: FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            setDeleteStatusMessage("");
+
+            if (!user) {
+              setDeleteStatusMessage("Log in first to request account deletion.");
+              return;
+            }
+
+            setIsSubmittingDeletion(true);
+
+            const { data: existingRequest, error: existingError } = await supabase
+              .from("deletion_requests")
+              .select("id,status")
+              .eq("user_id", user.id)
+              .in("status", ["open", "reviewing"])
+              .limit(1)
+              .maybeSingle();
+
+            if (existingError) {
+              setDeleteStatusMessage(existingError.message);
+              setIsSubmittingDeletion(false);
+              return;
+            }
+
+            if (existingRequest) {
+              setDeleteStatusMessage("You already have an account deletion request under review.");
+              setIsSubmittingDeletion(false);
+              return;
+            }
+
+            const { error } = await supabase
+              .from("deletion_requests")
+              .insert({
+                user_id: user.id,
+                reason: deleteReason.trim() || null,
+                status: "open"
+              });
+
+            setIsSubmittingDeletion(false);
+
+            if (error) {
+              setDeleteStatusMessage(error.message);
+              return;
+            }
+
+            setDeleteReason("");
+            setDeleteStatusMessage("Deletion request submitted. An admin will review it.");
+          }}>
+            <label>Reason, optional<textarea value={deleteReason} onChange={(event) => setDeleteReason(event.target.value)} placeholder="Tell us anything we should know before reviewing your deletion request." /></label>
+            <div className="actions">
+              <button className="btn btn-danger" type="submit" disabled={isSubmittingDeletion}>
+                {isSubmittingDeletion ? "Submitting..." : "Request account deletion"}
+              </button>
+              <Link className="btn btn-secondary" href="/privacy">Read Privacy Policy</Link>
+            </div>
+          </form>
+          {deleteStatusMessage ? <p className="lead">{deleteStatusMessage}</p> : null}
         </article>
       </div>
     </AppShell>

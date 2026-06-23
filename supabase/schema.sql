@@ -87,3 +87,12 @@ create table public.blocks (
   primary key (blocker_id, blocked_id),
   constraint no_self_block check (blocker_id <> blocked_id)
 );
+
+create table public.deletion_requests (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  reason text,
+  status public.report_status not null default 'open',
+  requested_at timestamptz not null default now(),
+  resolved_at timestamptz
+);

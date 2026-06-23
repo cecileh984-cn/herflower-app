@@ -60,6 +60,7 @@ Create a Supabase project, then run the SQL files in this order from SQL Editor:
 4. `supabase/chat-safety.sql`
 5. `supabase/banned-safety.sql`
 6. `supabase/avatar-storage.sql`
+7. `supabase/deletion-requests.sql`
 
 ## Storage Buckets
 
@@ -112,6 +113,8 @@ where id = (
 - `/chat/[id]` Private chat
 - `/profile` Public profile preview
 - `/admin` Admin review and safety queue
+- `/terms` Terms of Service
+- `/privacy` Privacy Policy
 
 ## Current MVP Features
 
@@ -129,6 +132,7 @@ where id = (
 - Message reporting
 - User blocking
 - Admin ban and restore
+- Account/data deletion request queue
 - Light auto-refresh for Chat, Post detail, and Community
 
 ## Deployment Notes

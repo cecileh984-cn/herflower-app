@@ -6,6 +6,7 @@ alter table public.conversations enable row level security;
 alter table public.messages enable row level security;
 alter table public.reports enable row level security;
 alter table public.blocks enable row level security;
+alter table public.deletion_requests enable row level security;
 
 create or replace function public.is_admin()
 returns boolean
@@ -159,3 +160,16 @@ create policy "Users can manage their blocks"
 on public.blocks for all
 using (blocker_id = auth.uid())
 with check (blocker_id = auth.uid());
+
+create policy "Users can create their own deletion requests"
+on public.deletion_requests for insert
+with check (user_id = auth.uid());
+
+create policy "Users can read their own deletion requests"
+on public.deletion_requests for select
+using (user_id = auth.uid() or public.is_admin());
+
+create policy "Admins can update deletion requests"
+on public.deletion_requests for update
+using (public.is_admin())
+with check (public.is_admin());
