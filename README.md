@@ -115,6 +115,7 @@ where id = (
 - `/admin` Admin review and safety queue
 - `/terms` Terms of Service
 - `/privacy` Privacy Policy
+- `/support` Support and data request information
 
 ## Current MVP Features
 

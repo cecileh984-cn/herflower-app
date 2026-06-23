@@ -35,7 +35,7 @@ export default function PrivacyPage() {
           <p>We may use reports, blocks, verification status, and moderation history to protect members, investigate abuse, restrict unsafe accounts, and improve community safety.</p>
 
           <h3>7. Deleting data</h3>
-          <p>You may request deletion of your account and related data. Some records may be retained when required for safety, fraud prevention, dispute handling, or legal obligations.</p>
+          <p>You may request deletion of your account and related data from your Profile page or by contacting <Link href="/support">HerFlower Support</Link>. Some records may be retained when required for safety, fraud prevention, dispute handling, or legal obligations.</p>
 
           <h3>8. Early-stage policy</h3>
           <p>This privacy policy is written for the HerFlower MVP and should be reviewed by a qualified lawyer before significant public marketing, paid acquisition, or app-store launch.</p>

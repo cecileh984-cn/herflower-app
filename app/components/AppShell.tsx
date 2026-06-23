@@ -90,6 +90,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {user ? <button className="mini-btn" onClick={logOut}>Log out</button> : null}
               <Link className="mini-btn" href="/terms">Terms</Link>
               <Link className="mini-btn" href="/privacy">Privacy</Link>
+              <Link className="mini-btn" href="/support">Support</Link>
             </div>
           </div>
         </aside>

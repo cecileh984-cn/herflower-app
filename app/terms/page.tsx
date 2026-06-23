@@ -32,7 +32,7 @@ export default function TermsPage() {
           <p>Members can report posts, comments, messages, and users. Admins may review reports and take action, including hiding content, dismissing reports, marking reports resolved, or banning accounts.</p>
 
           <h3>6. Account removal</h3>
-          <p>HerFlower may suspend or remove accounts that violate these terms or create safety risks for the community. Members may request account or data deletion by contacting HerFlower support.</p>
+          <p>HerFlower may suspend or remove accounts that violate these terms or create safety risks for the community. Members may request account or data deletion through their Profile page or by contacting <Link href="/support">HerFlower Support</Link>.</p>
 
           <h3>7. MVP notice</h3>
           <p>HerFlower is currently an early MVP. Features, rules, and moderation workflows may change as the product improves. These terms are a starting policy and should be reviewed by a qualified lawyer before a large public launch.</p>
