@@ -13,15 +13,50 @@ export default function SignUpPage() {
   const { signUp } = useLocalAppState();
   const [email, setEmail] = useState("you@example.com");
   const [password, setPassword] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  function isAtLeast18(dateValue: string) {
+    if (!dateValue) return false;
+
+    const birthdayDate = new Date(`${dateValue}T00:00:00`);
+    if (Number.isNaN(birthdayDate.getTime())) return false;
+
+    const today = new Date();
+    let age = today.getFullYear() - birthdayDate.getFullYear();
+    const monthDifference = today.getMonth() - birthdayDate.getMonth();
+    const birthdayHasNotHappenedThisYear =
+      monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthdayDate.getDate());
+
+    if (birthdayHasNotHappenedThisYear) age -= 1;
+    return age >= 18;
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsSubmitting(true);
     setStatusMessage("");
     setNeedsEmailConfirmation(false);
+
+    if (!isAtLeast18(birthday)) {
+      setStatusMessage("You must be at least 18 years old to create a HerFlower account.");
+      return;
+    }
+
+    if (!isAdultConfirmed) {
+      setStatusMessage("Please confirm that you are 18 years or older.");
+      return;
+    }
+
+    if (!termsAccepted) {
+      setStatusMessage("Please accept the Terms of Service and Privacy Policy before continuing.");
+      return;
+    }
+
+    setIsSubmitting(true);
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -82,13 +117,18 @@ export default function SignUpPage() {
         <form className="grid two" onSubmit={handleSubmit}>
           <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required /></label>
           <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Create a password" minLength={6} required /></label>
-          <label className="full">Birthday<input type="date" required /></label>
-          <label className="full">Age confirmation<select><option>I confirm I am 18 years or older</option><option>I am not 18 yet</option></select></label>
-          <label className="full">Terms<select required><option>I agree to the Terms of Service and Privacy Policy</option></select></label>
-          <p className="small full">
-            By continuing, you agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
-            HerFlower uses selfie and ID review to help protect a women-only, 18+ community.
-          </p>
+          <label className="full">Birthday<input type="date" value={birthday} onChange={(event) => setBirthday(event.target.value)} required /></label>
+          <label className="check-row full">
+            <input type="checkbox" checked={isAdultConfirmed} onChange={(event) => setIsAdultConfirmed(event.target.checked)} required />
+            <span>I confirm I am 18 years or older.</span>
+          </label>
+          <label className="check-row full">
+            <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} required />
+            <span>
+              I agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
+            </span>
+          </label>
+          <p className="small full">HerFlower uses selfie and ID review to help protect a women-only, 18+ community.</p>
           <div className="actions full">
             <button className="btn btn-primary" type="submit" disabled={isSubmitting}>{isSubmitting ? "Creating account..." : "Continue to verification"}</button>
           </div>
