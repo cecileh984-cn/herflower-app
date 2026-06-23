@@ -61,6 +61,7 @@ Create a Supabase project, then run the SQL files in this order from SQL Editor:
 5. `supabase/banned-safety.sql`
 6. `supabase/avatar-storage.sql`
 7. `supabase/deletion-requests.sql`
+8. `supabase/beta-feedback.sql`
 
 ## Storage Buckets
 
@@ -134,6 +135,7 @@ where id = (
 - User blocking
 - Admin ban and restore
 - Account/data deletion request queue
+- Beta feedback form and admin queue
 - Light auto-refresh for Chat, Post detail, and Community
 
 ## Deployment Notes

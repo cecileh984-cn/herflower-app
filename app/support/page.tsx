@@ -1,9 +1,56 @@
 "use client";
 
 import Link from "next/link";
+import { FormEvent, useState } from "react";
 import { AppShell } from "../components/AppShell";
+import { supabase } from "../lib/supabase";
 
 export default function SupportPage() {
+  const [category, setCategory] = useState("general");
+  const [message, setMessage] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function submitFeedback(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatusMessage("");
+
+    const trimmedMessage = message.trim();
+    if (trimmedMessage.length < 8) {
+      setStatusMessage("Please write a little more so we can understand the issue.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const user = userData.user;
+
+    if (userError || !user) {
+      setIsSubmitting(false);
+      setStatusMessage("Please log in before sending feedback.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("beta_feedback")
+      .insert({
+        user_id: user.id,
+        category,
+        message: trimmedMessage
+      });
+
+    setIsSubmitting(false);
+
+    if (error) {
+      setStatusMessage(error.message);
+      return;
+    }
+
+    setMessage("");
+    setCategory("general");
+    setStatusMessage("Thank you. Your feedback was sent to the HerFlower admin queue.");
+  }
+
   return (
     <AppShell>
       <div className="content legal-page">
@@ -16,6 +63,33 @@ export default function SupportPage() {
         </div>
 
         <section className="grid">
+          <article className="card legal-card">
+            <h3>Send beta feedback</h3>
+            <p>Use this for bugs, confusing screens, safety concerns, or ideas from early testers.</p>
+            <form className="grid" onSubmit={submitFeedback}>
+              <label>Category
+                <select value={category} onChange={(event) => setCategory(event.target.value)}>
+                  <option value="general">General feedback</option>
+                  <option value="bug">Bug or broken screen</option>
+                  <option value="safety">Safety concern</option>
+                  <option value="verification">Verification help</option>
+                  <option value="idea">Feature idea</option>
+                </select>
+              </label>
+              <label>Message
+                <textarea
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  placeholder="Tell us what happened, what you expected, or what would make HerFlower better."
+                />
+              </label>
+              <button className="btn btn-primary" disabled={isSubmitting} type="submit">
+                {isSubmitting ? "Sending..." : "Send feedback"}
+              </button>
+            </form>
+            {statusMessage ? <p className="lead">{statusMessage}</p> : null}
+          </article>
+
           <article className="card legal-card">
             <h3>Contact</h3>
             <p>Email: <a href="mailto:support@herflower.app">support@herflower.app</a></p>

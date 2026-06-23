@@ -41,10 +41,22 @@ type DeletionRequestRow = {
   profile: ProfileRow | null;
 };
 
+type BetaFeedbackRow = {
+  id: string;
+  user_id: string;
+  category: string;
+  message: string;
+  status: "open" | "reviewing" | "resolved" | "dismissed";
+  created_at: string;
+  resolved_at: string | null;
+  profile: ProfileRow | null;
+};
+
 export default function AdminPage() {
   const [verifications, setVerifications] = useState<VerificationRow[]>([]);
   const [supabaseReports, setSupabaseReports] = useState<ReportRow[]>([]);
   const [deletionRequests, setDeletionRequests] = useState<DeletionRequestRow[]>([]);
+  const [betaFeedback, setBetaFeedback] = useState<BetaFeedbackRow[]>([]);
   const [bannedProfiles, setBannedProfiles] = useState<ProfileRow[]>([]);
   const [statusMessage, setStatusMessage] = useState("");
   const [rejectionReasons, setRejectionReasons] = useState<Record<string, string>>({});
@@ -52,6 +64,7 @@ export default function AdminPage() {
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const openReports = supabaseReports.filter((report) => report.status === "open");
   const openDeletionRequests = deletionRequests.filter((request) => request.status === "open" || request.status === "reviewing");
+  const openBetaFeedback = betaFeedback.filter((feedback) => feedback.status === "open" || feedback.status === "reviewing");
 
   async function loadAdminData() {
     setIsLoading(true);
@@ -67,6 +80,7 @@ export default function AdminPage() {
       setVerifications([]);
       setSupabaseReports([]);
       setDeletionRequests([]);
+      setBetaFeedback([]);
       setBannedProfiles([]);
       return;
     }
@@ -124,10 +138,21 @@ export default function AdminPage() {
       setDeletionRequests([]);
     }
 
+    const { data: feedbackData, error: feedbackError } = await supabase
+      .from("beta_feedback")
+      .select("id,user_id,category,message,status,created_at,resolved_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (feedbackError) {
+      setBetaFeedback([]);
+    }
+
     const profileIds = [
       ...new Set((reportData ?? [])
         .flatMap((report) => [report.reporter_id, report.reported_user_id])
         .concat((deletionData ?? []).map((request) => request.user_id))
+        .concat((feedbackData ?? []).map((feedback) => feedback.user_id))
         .filter(Boolean) as string[])
     ];
 
@@ -156,6 +181,11 @@ export default function AdminPage() {
       ...request,
       profile: profiles?.find((profile) => profile.id === request.user_id) ?? null
     })) as DeletionRequestRow[]);
+
+    setBetaFeedback((feedbackData ?? []).map((feedback) => ({
+      ...feedback,
+      profile: profiles?.find((profile) => profile.id === feedback.user_id) ?? null
+    })) as BetaFeedbackRow[]);
   }
 
   useEffect(() => {
@@ -327,6 +357,26 @@ export default function AdminPage() {
     loadAdminData();
   }
 
+  async function updateBetaFeedbackStatus(feedback: BetaFeedbackRow, nextStatus: "reviewing" | "resolved" | "dismissed") {
+    setStatusMessage("");
+
+    const { error } = await supabase
+      .from("beta_feedback")
+      .update({
+        status: nextStatus,
+        resolved_at: nextStatus === "resolved" || nextStatus === "dismissed" ? new Date().toISOString() : null
+      })
+      .eq("id", feedback.id);
+
+    if (error) {
+      setStatusMessage(error.message);
+      return;
+    }
+
+    setStatusMessage(`Feedback marked ${nextStatus}.`);
+    loadAdminData();
+  }
+
   return (
     <AppShell>
       <RequireAdmin>
@@ -341,11 +391,12 @@ export default function AdminPage() {
             <div className="grid">
               <article className="card">
                 <div className="card-name">Safety queue</div>
-                <p className="lead">{openReports.length} open Supabase reports - {openDeletionRequests.length} deletion requests - {bannedProfiles.length} banned users</p>
+                <p className="lead">{openReports.length} open Supabase reports - {openDeletionRequests.length} deletion requests - {openBetaFeedback.length} feedback items - {bannedProfiles.length} banned users</p>
               </article>
               <article className="card">
                 <div className="card-name">MVP metrics</div>
                 <p className="lead">Supabase reports: {supabaseReports.length} - Open: {openReports.length}</p>
+                <p className="lead">Beta feedback: {betaFeedback.length} - Open: {openBetaFeedback.length}</p>
                 <button className="btn btn-secondary">View analytics</button>
               </article>
             </div>
@@ -448,6 +499,44 @@ export default function AdminPage() {
               );
             })}
             {deletionRequests.length === 0 ? <p className="lead">No account deletion requests yet.</p> : null}
+          </div>
+          <div className="grid" style={{ marginTop: 16 }}>
+            <h3>Beta feedback queue</h3>
+            {betaFeedback.map((feedback) => {
+              const isHandled = feedback.status === "resolved" || feedback.status === "dismissed";
+
+              return (
+                <article className="card grid" key={feedback.id}>
+                  <div className="section-head" style={{ marginBottom: 0 }}>
+                    <div>
+                      <div className="card-name">{feedback.category} feedback - {feedback.status}</div>
+                      <p className="lead">{feedback.message}</p>
+                    </div>
+                    <div className="actions">
+                      {isHandled ? <span className="tag">Handled</span> : null}
+                      <span className="tag">{new Date(feedback.created_at).toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="avatar-row">
+                    <Avatar name={feedback.profile?.display_name} src={feedback.profile?.avatar_url} />
+                    <div>
+                      <div className="card-name">{feedback.profile?.display_name ?? "HerFlower member"}</div>
+                      <div className="small">User: {feedback.user_id}</div>
+                    </div>
+                  </div>
+                  {!isHandled ? (
+                    <div className="actions">
+                      {feedback.status === "open" ? (
+                        <button className="btn btn-secondary" onClick={() => updateBetaFeedbackStatus(feedback, "reviewing")}>Mark reviewing</button>
+                      ) : null}
+                      <button className="btn btn-secondary" onClick={() => updateBetaFeedbackStatus(feedback, "resolved")}>Mark resolved</button>
+                      <button className="btn btn-secondary" onClick={() => updateBetaFeedbackStatus(feedback, "dismissed")}>Dismiss</button>
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+            {betaFeedback.length === 0 ? <p className="lead">No beta feedback yet. Ask early testers to use Support when something feels confusing or broken.</p> : null}
           </div>
           <div className="grid" style={{ marginTop: 16 }}>
             <h3>Supabase report queue</h3>

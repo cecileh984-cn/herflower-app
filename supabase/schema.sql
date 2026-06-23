@@ -96,3 +96,13 @@ create table public.deletion_requests (
   requested_at timestamptz not null default now(),
   resolved_at timestamptz
 );
+
+create table public.beta_feedback (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  category text not null default 'general',
+  message text not null,
+  status public.report_status not null default 'open',
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);

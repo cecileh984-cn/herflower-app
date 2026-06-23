@@ -107,7 +107,15 @@ Use this checklist before every public release. Test on desktop and phone width.
 - [ ] Admin marks the request reviewing.
 - [ ] Admin marks the request completed.
 
-## 11. Production Safety Checks
+## 11. Beta Feedback
+
+- [ ] Open Support while logged in.
+- [ ] Submit beta feedback.
+- [ ] Confirm the feedback appears in Admin.
+- [ ] Admin marks the feedback reviewing.
+- [ ] Admin marks the feedback resolved or dismissed.
+
+## 12. Production Safety Checks
 
 - [ ] Confirm the live URL is using `https://herflower-app.vercel.app`.
 - [ ] Confirm Supabase Site URL is `https://herflower-app.vercel.app`.
@@ -118,7 +126,7 @@ Use this checklist before every public release. Test on desktop and phone width.
 - [ ] Confirm profile-avatars bucket is public.
 - [ ] Confirm no secret service role key is exposed in the frontend.
 
-## 12. Final Decision
+## 13. Final Decision
 
 - [ ] All critical flows pass.
 - [ ] No broken mobile layout found.
