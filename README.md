@@ -44,11 +44,12 @@ Create `.env.local` from `.env.example`:
 ```text
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-publishable-or-anon-key
+HERFLOWER_INVITE_CODES=HERFLOWER-BETA
 ```
 
 Do not commit `.env.local`.
 
-For Vercel, add the same two variables in Project Settings -> Environment Variables.
+For Vercel, add the same variables in Project Settings -> Environment Variables. `HERFLOWER_INVITE_CODES` can contain one code or multiple comma-separated codes, for example `HERFLOWER-BETA,FRIEND-TEST`.
 
 ## Supabase Setup
 
@@ -92,13 +93,14 @@ where id = (
 ## MVP Flow
 
 1. Create account.
-2. Confirm email.
-3. Upload selfie and ID document in Verification.
-4. Admin approves the verification.
-5. User completes Profile Setup and uploads a public avatar.
-6. User can access Discover, Community, Messages, and Chat.
-7. Users can report posts, comments, messages, and other users.
-8. Admin can resolve reports, hide posts/comments, ban users, and restore banned users.
+2. Enter a valid beta invite code.
+3. Confirm email.
+4. Upload selfie and ID document in Verification.
+5. Admin approves the verification.
+6. User completes Profile Setup and uploads a public avatar.
+7. User can access Discover, Community, Messages, and Chat.
+8. Users can report posts, comments, messages, and other users.
+9. Admin can resolve reports, hide posts/comments, ban users, and restore banned users.
 
 ## Main Pages
 
@@ -146,6 +148,7 @@ The project can be deployed to Vercel after:
 2. All required SQL has been run.
 3. All buckets are created.
 4. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are added in Vercel.
-5. `npm run build` passes locally.
+5. `HERFLOWER_INVITE_CODES` is added in Vercel.
+6. `npm run build` passes locally.
 
 Before each public release, run through `docs/launch-test-checklist.md`.

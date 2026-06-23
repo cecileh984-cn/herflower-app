@@ -13,6 +13,7 @@ export default function SignUpPage() {
   const { signUp } = useLocalAppState();
   const [email, setEmail] = useState("you@example.com");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [birthday, setBirthday] = useState("");
   const [isAdultConfirmed, setIsAdultConfirmed] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -57,6 +58,19 @@ export default function SignUpPage() {
     }
 
     setIsSubmitting(true);
+
+    const inviteResponse = await fetch("/api/validate-invite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ inviteCode })
+    });
+    const inviteResult = await inviteResponse.json();
+
+    if (!inviteResponse.ok || !inviteResult.ok) {
+      setIsSubmitting(false);
+      setStatusMessage(inviteResult.error ?? "This invite code is not valid.");
+      return;
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -117,6 +131,7 @@ export default function SignUpPage() {
         <form className="grid two" onSubmit={handleSubmit}>
           <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required /></label>
           <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Create a password" minLength={6} required /></label>
+          <label className="full">Invite code<input value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} placeholder="Enter your beta invite code" required /></label>
           <label className="full">Birthday<input type="date" value={birthday} onChange={(event) => setBirthday(event.target.value)} required /></label>
           <label className="check-row full">
             <input type="checkbox" checked={isAdultConfirmed} onChange={(event) => setIsAdultConfirmed(event.target.checked)} required />
@@ -128,7 +143,7 @@ export default function SignUpPage() {
               I agree to the <Link href="/terms">Terms of Service</Link> and <Link href="/privacy">Privacy Policy</Link>.
             </span>
           </label>
-          <p className="small full">HerFlower uses selfie and ID review to help protect a women-only, 18+ community.</p>
+          <p className="small full">HerFlower is currently invite-only. Selfie and ID review help protect a women-only, 18+ community.</p>
           <div className="actions full">
             <button className="btn btn-primary" type="submit" disabled={isSubmitting}>{isSubmitting ? "Creating account..." : "Continue to verification"}</button>
           </div>

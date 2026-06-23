@@ -15,6 +15,8 @@ Use this checklist before every public release. Test on desktop and phone width.
 
 - [ ] Create a new account with a real email address.
 - [ ] Confirm the password field works.
+- [ ] Try signup with a wrong invite code and confirm signup is blocked.
+- [ ] Try signup with the correct invite code and confirm signup continues.
 - [ ] Try a birthday under 18 and confirm signup is blocked.
 - [ ] Try signup without the 18+ checkbox and confirm signup is blocked.
 - [ ] Try signup without agreeing to Terms/Privacy and confirm signup is blocked.
@@ -122,6 +124,7 @@ Use this checklist before every public release. Test on desktop and phone width.
 - [ ] Confirm Supabase Redirect URLs include `https://herflower-app.vercel.app/**`.
 - [ ] Confirm Vercel has `NEXT_PUBLIC_SUPABASE_URL`.
 - [ ] Confirm Vercel has `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- [ ] Confirm Vercel has `HERFLOWER_INVITE_CODES`.
 - [ ] Confirm private verification buckets are not public.
 - [ ] Confirm profile-avatars bucket is public.
 - [ ] Confirm no secret service role key is exposed in the frontend.
