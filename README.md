@@ -145,3 +145,5 @@ The project can be deployed to Vercel after:
 3. All buckets are created.
 4. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are added in Vercel.
 5. `npm run build` passes locally.
+
+Before each public release, run through `docs/launch-test-checklist.md`.
